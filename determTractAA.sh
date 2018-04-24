@@ -83,10 +83,10 @@ mkdir $out/tractography
 export CAMINO_HEAP_SIZE=10000
 
 $cdir/fsl2scheme -bvecfile $in/bvecs -bvalfile $in/bvals > $out/tractography/${IDs}.scheme
-$cdir/image2voxel -4dimage $out/prestats/${IDs}_eddied_undistort_warped_t1Masked.nii.gz -outputfile $out/tractography/${IDs}_i2v.Bfloat
+$cdir/image2voxel -4dimage $out/prestats/${IDs}_eddied_undistort_warped.nii.gz -outputfile $out/tractography/${IDs}_i2v.Bfloat
 
 #wdt reconstruction
-###THIS###$cdir/wdtfit $out/tractography/${IDs}_i2v.Bfloat $out/tractography/${IDs}.scheme -bgmask ${out}/AMICO/dwibet_mask.nii.gz -outputfile $out/tractography/${IDs}_WdtModelFit.Bdouble
+$cdir/wdtfit $out/tractography/${IDs}_i2v.Bfloat $out/tractography/${IDs}.scheme -bgmask ${out}/AMICO/brainMask.nii -outputfile $out/tractography/${IDs}_WdtModelFit.Bdouble
 ##########$cdir/wdtfit $out/tractography/${IDs}_i2v.Bfloat $out/tractography/${IDs}.scheme -bgmask $in/brainMask.nii -outputfile $out/tractography/${IDs}_WdtModelFit.Bdouble
 #mv $out/coreg/${bblIDs}_${SubDate_and_ID}_Schaef_WM_intersect.nii.gz  $out/coreg/${bblIDs}_${SubDate_and_ID}_SchaefPNC_200_WM_intersect.nii.gz
 
@@ -113,7 +113,7 @@ tractography_output=$out/tractography/${IDs}_HippoTract.Bdouble
 ##fslmaths ${out}/coreg/RBinarizedHippoPlus1.nii.gz -add ${out}/coreg/LBinarizedHippo.nii.gz ${out}/coreg/RLBinHippo.nii.gz
 ##fslmaths ${out}/coreg/RLBinHippo.nii.gz -add $out/tractography/${IDs}_Precun.nii.gz ${out}/tractography/endpoint.nii.gz
 
-$cdir/analyzeheader -datadims 140 140 92 -voxeldims 1.5 1.5 1.5 -datatype double > $out/tractography/${IDs}_Camino_FA.hdr
+$cdir/analyzeheader -datadims 96 96 50 -voxeldims 2.5 2.5 2.5 -datatype double > $out/tractography/${IDs}_Camino_FA.hdr
 
 # Generate FA from camino
 $cdir/fa < $out/tractography/${IDs}_WdtModelFit.Bdouble > $out/tractography/${IDs}_Camino_FA.img
@@ -128,7 +128,7 @@ fslcpgeom ${subAAL} $out/tractography/${IDs}_Camino_FA.nii.gz
 
 #Camino tractography
 
-$cdir/track -inputmodel dt -seedfile "${subAAL}" -inputfile "${model_fit_path}" -tracker euler -interpolator linear -iterations 10 -curvethresh 60 | $cdir/procstreamlines -exclusionfile ${exclusion_path} -truncateinexclusion -endpointfile ${subAAL} -outputfile ${out}/tractography/${IDs}_determTractsAAredo.Bfloat
+$cdir/track -inputmodel dt -seedfile "${subAAL}" -inputfile "${model_fit_path}" -tracker euler -interpolator linear -iterations 10 -curvethresh 50 | $cdir/procstreamlines -exclusionfile ${exclusion_path} -truncateinexclusion -endpointfile ${subAAL} -outputfile ${out}/tractography/${IDs}_determTractsAAredo50_2.Bfloat
 ##$cdir/track -inputmodel dt -seedfile "${seed_path}" -inputfile "${model_fit_path}" -tracker fact -iterations 20 -curvethresh 60 | $cdir/procstreamlines -waypointfile ${waypoint_path} -exclusionfile ${exclusion_path} -endpointfile ${out}/tractography/endpoint.nii.gz -outputfile "${tractography_output}"
 ##$cdir/track -inputmodel dt -seedfile "${seed_path}" -inputfile "${model_fit_path}" -tracker fact -iterations 20 -curvethresh 70 | $cdir/procstreamlines -exclusionfile ${exclusion_path} -endpointfile ${out}/tractography/endpoint.nii.gz -outputfile "${tractography_output}"
 
@@ -166,7 +166,7 @@ rm $out/tractography/${IDs}_Camino_FA.img
 cp $out/tractography/${IDs}_Camino_FA.nii.gz $out/coreg
 
 # Mean ICVF matrix
-$cdir/conmat -inputfile ${out}/tractography/${IDs}_determTractsAAredo.Bfloat -targetfile ${subAAL} -scalarfile $out/coreg/FIT_ICVF.nii -tractstat mean -outputroot $out/tractography/${IDs}_ICVF_determTractsAAredo
+$cdir/conmat -inputfile ${out}/tractography/${IDs}_determTractsAAredo50_2.Bfloat -targetfile ${subAAL} -scalarfile $out/coreg/FIT_ICVF.nii -tractstat mean -outputroot $out/tractography/${IDs}_ICVF_determTractsAAredo50_2
 
 # Mean ODI matrix
 #####$cdir/conmat -inputfile "${tractography_output}" -targetfile ${subAAL} -scalarfile $out/coreg/FIT_OD.nii -tractstat mean -outputroot $out/tractography/${IDs}_ODI_matrixaa
