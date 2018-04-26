@@ -7,11 +7,16 @@ Num=$(echo ${ID}|cut -b 5-7)
 ############################################################################################################
 ### BIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDS ###
 # 4/13/18  - created########################################################################################
-############ 4/18/18 - sifted through all the B0 BS ########################################################
+###### 4/18/18 - sifted through all the B0 BS ##############################################################
 ######################### 4/23/18 - .json additions   ######################################################
-######################################### .json fixes, bvecs fix ###########################################
+######################################### 4/25/18 .json fixes, bvecs fix ###################################
+##################################################################### 4/26 - WORKS ######################### 
 
 #### NOTE: This does not distinguish in output b/w patients and controls. Replace "sub" with control when running on controls #####
+
+
+### 3T Pre-HCP version (fMRI parameters/b0 mapping will need updating for future versions) ###
+
 
 ###################################################### Make Dirs
 
@@ -42,7 +47,8 @@ cp /data/jux/daviska/apines/3T_Subjects_NODDI/${ID}/AMICO/bvals ${Parent}/dwi/su
 cp /data/jux/daviska/apines/3T_Subjects_NODDI/${ID}/AMICO/bvecs ${Parent}/dwi/sub-${Num}_dwi.bvec
 
 # Change bvecs to single space delimited instead of double spaced
-sed -i -e 's/  / g' ${Parent}/dwi/sub-${Num}_dwi.bval
+
+sed -i 's/  / /g' ${Parent}/dwi/sub-${Num}_dwi.bvec
 
 ## Structural ##
 # Pulling structurals from Lohith's directory since it looks like he already did some of the sifting
@@ -70,15 +76,18 @@ rm -r ${Parent}/tmp
 
 ############################################################## Make .json files
 # Dataset description
-echo { >> ${Parent}/dataset_description.json
-echo "\"Name"\": "\"HUP Research Scans"\", >> ${Parent}/dataset_description.json
-echo "\"BIDSVersion"\" : "\"1.0.11"\", >> ${Parent}/dataset_description.json
-echo "\"Patient"\": "\"${ID}"\" >> ${Parent}/dataset_description.json
-echo } >> ${Parent}/dataset_description.json
+rm /data/jux/daviska/apines/3T_BIDS/dataset_description.json
+echo { >> /data/jux/daviska/apines/3T_BIDS/dataset_description.json
+echo   "\"BIDSVersion"\" : "\"1.0.11"\",   >> /data/jux/daviska/apines/3T_BIDS/dataset_description.json
+echo   "\"Name"\": "\"HUP Research Scans"\"   >> /data/jux/daviska/apines/3T_BIDS/dataset_description.json
+#echo   "\"Patient"\": "\"${ID}"\" >> ${Parent}/dataset_description.json
+echo } >> /data/jux/daviska/apines/3T_BIDS/dataset_description.json
 
 # Fieldmap echo times
-echo {"\"EchoTime2"\": 0.00559, "\"EchoTime1"\": 0.00313, "\"IntendedFor"\": "\"/func/sub-${Num}_task-rest_bold.nii.gz"\"} >> ${Parent}/fmap/sub-${Num}_phasediff.json
+echo {"\"EchoTime2"\": 0.00559, "\"EchoTime1"\": 0.00313, "\"IntendedFor"\": "\"func/sub-${Num}_task-rest_bold.nii.gz"\"} >> ${Parent}/fmap/sub-${Num}_phasediff.json
 
+# fMRI param
+echo { "\"TaskName"\": "\"Rest"\", "\"RepetitionTime"\": 0.5, "\"EchoTime"\": 0.03 }>>${Parent}/func/sub-${Num}_task-rest_bold.json
 
 ############ Direct pulls from raw folder (if needed, but more troublesome/will probably work for less subjects)
 # DWI
