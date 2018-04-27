@@ -1,8 +1,5 @@
 #!/bin/bash
 
-ID=$1
-Num=$(echo ${ID}|cut -b 5-7)
-
 
 ############################################################################################################
 ### BIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDSBIDS ###
@@ -10,12 +7,17 @@ Num=$(echo ${ID}|cut -b 5-7)
 ###### 4/18/18 - sifted through all the B0 BS ##############################################################
 ######################### 4/23/18 - .json additions   ######################################################
 ######################################### 4/25/18 .json fixes, bvecs fix ###################################
-##################################################################### 4/26 - WORKS ######################### 
+############################################################## 4/26 - WORKS ################################ 
+###################################################################### 4/27 added phase encoding to rsfMRI #
+############################################################################################################
 
 #### NOTE: This does not distinguish in output b/w patients and controls. Replace "sub" with control when running on controls #####
-
-
 ### 3T Pre-HCP version (fMRI parameters/b0 mapping will need updating for future versions) ###
+
+# Argument input is 3T ID, (i.e., 3T_P12). Note structurals are taken from Lohith's directory, and diffusion from mine. This was done because subject files are uniformly named in these directories, and more intuitive to code for. BUT, this will mean thats future subjects will not have this information present. See commented out commands at bottom of script for basis of pulling these from initial upload format data.
+
+ID=$1
+Num=$(echo ${ID}|cut -b 5-7)
 
 
 ###################################################### Make Dirs
@@ -29,7 +31,7 @@ mkdir ${Parent}/dwi
 mkdir ${Parent}/fmap
 mkdir ${Parent}/tmp
 
-### CP dirs from current state (HCP format)
+### CP dirs from current state (Init format)
 ##################################################### Get images
 ## rsfMRI ##
 cp ${GrandParent}/${ID}/*rest*/* ${Parent}/tmp/
@@ -87,7 +89,7 @@ echo } >> /data/jux/daviska/apines/3T_BIDS/dataset_description.json
 echo {"\"EchoTime2"\": 0.00559, "\"EchoTime1"\": 0.00313, "\"IntendedFor"\": "\"func/sub-${Num}_task-rest_bold.nii.gz"\"} >> ${Parent}/fmap/sub-${Num}_phasediff.json
 
 # fMRI param
-echo { "\"TaskName"\": "\"Rest"\", "\"RepetitionTime"\": 0.5, "\"EchoTime"\": 0.03 }>>${Parent}/func/sub-${Num}_task-rest_bold.json
+echo { "\"TaskName"\": "\"Rest"\", "\"RepetitionTime"\": 0.5, "\"EchoTime"\": 0.03, "\"PhaseEncodingDirection"\": "\"j"\" }>>${Parent}/func/sub-${Num}_task-rest_bold.json
 
 ############ Direct pulls from raw folder (if needed, but more troublesome/will probably work for less subjects)
 # DWI
