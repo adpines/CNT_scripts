@@ -64,14 +64,14 @@ cp /data/jux/daviska/apines/B0_Mag/${ID}/* ${Parent}/tmp/
 cd ${Parent}/tmp
 dcm2nii *
 cp ${Parent}/tmp/*.nii.gz ${Parent}/fmap/sub-${Num}_magnitude1.nii.gz
-rm *
+rm ${Parent}/tmp/*
 
 ## Phase ##
 cp /data/jux/daviska/apines/B0_Phase/${ID}/* ${Parent}/tmp/
 cd ${Parent}/tmp
 dcm2nii *
 cp ${Parent}/tmp/*.nii.gz ${Parent}/fmap/sub-${Num}_phasediff.nii.gz
-rm *
+rm ${Parent}/tmp/*
 
 ## Take out tmp ##
 rm -r ${Parent}/tmp
